@@ -29,6 +29,11 @@ Usage of alpimager:
         Setup script file (default "setup.sh")
 ```
 
+If you are for some reason still using Windows, please:
+
+- Use absolute file paths in the parameters (i.e. `C:\Users\pojntfx\Downloads\packages.txt`)
+- Make sure that the files (i.e. `packages.txt`) use proper `LF` line endings
+
 ## License
 
 alpimager (c) 2020 Felix Pojtinger
