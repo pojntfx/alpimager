@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"fmt"
 	"log"
 	"os"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 )
 
 func main() {
@@ -19,5 +23,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(*script, *packages, *repositories, *output)
+	ctx := context.Background()
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := cli.ImagePull(ctx, "docker.io/library/alpine:edge", types.ImagePullOptions{}); err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := cli.ContainerCreate(ctx, &container.Config{Image: "alpine:edge", Cmd: []string{"tail", "-f", "/dev/null"}}, &container.HostConfig{Privileged: true}, nil, "")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(*script, *packages, *repositories, *output, resp.ID)
 }
