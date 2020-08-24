@@ -1,4 +1,4 @@
-module github.com/pojntfx/alpass
+module github.com/pojntfx/alpimager
 
 go 1.14
 
