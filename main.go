@@ -15,7 +15,7 @@ func main() {
 
 	flag.Parse()
 
-	if err := os.Chmod(*script, 777); err != nil {
+	if err := os.Chmod(*script, 0777); err != nil {
 		log.Fatal(err)
 	}
 
