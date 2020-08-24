@@ -16,3 +16,7 @@ require (
 	golang.org/x/sys v0.0.0-20200824131525-c12d262b63d8 // indirect
 	google.golang.org/grpc v1.31.0 // indirect
 )
+
+replace (
+	golang.org/x/sys => golang.org/x/sys v0.0.0-20190830141801-acfa387b8d69
+)
