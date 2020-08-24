@@ -1,9 +1,11 @@
 package main
 
 import (
+	"archive/tar"
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -19,7 +21,6 @@ const (
 	PACKAGE_LIST_FILE_DEFAULT    = "packages.txt"
 	REPOSITORY_LIST_FILE_DEFAULT = "repositories.txt"
 	OUTPUT_IMAGE_FILE_DEFAULT    = "alpine.qcow2"
-	OUTPUT_IMAGE_SIZE_DEFAULT    = "250M"
 
 	DOCKER_IMAGE_URL = "docker.io/library/alpine:edge"
 	DOCKER_IMAGE     = "alpine:edge"
@@ -32,7 +33,6 @@ func main() {
 	packageListFile := flag.String("packages", PACKAGE_LIST_FILE_DEFAULT, "Package list file")
 	repositoryListFile := flag.String("repositories", REPOSITORY_LIST_FILE_DEFAULT, "Repository list file")
 	outputImageFile := flag.String("output", OUTPUT_IMAGE_FILE_DEFAULT, "Output image file")
-	outputImageSize := flag.String("size", OUTPUT_IMAGE_SIZE_DEFAULT, "Output image size")
 
 	flag.Parse()
 
@@ -58,6 +58,11 @@ func main() {
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		log.Fatal(err)
 	}
+	defer func() {
+		if err := cli.ContainerRemove(ctx, resp.ID, types.ContainerRemoveOptions{Force: true}); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	filePaths := [][2]string{{*setupScriptFile, SETUP_SCRIPT_FILE_DEFAULT}, {*packageListFile, PACKAGE_LIST_FILE_DEFAULT}, {*repositoryListFile, REPOSITORY_LIST_FILE_DEFAULT}}
 	cmds := [][]string{}
@@ -74,7 +79,7 @@ func main() {
 		cmds = append(cmds, []string{"mv", path.Join(WORKDIR, path.Base(filePath[0])), path.Join(WORKDIR, filePath[1])})
 	}
 
-	cmds = append(cmds, []string{"apk", "add", "alpine-make-vm-image"}, []string{"sh", "-c", fmt.Sprintf("alpine-make-vm-image --image-format qcow2 --image-size %v --repositories-file %v --packages \"$(cat %v)\" --script-chroot %v %v", *outputImageSize, REPOSITORY_LIST_FILE_DEFAULT, PACKAGE_LIST_FILE_DEFAULT, OUTPUT_IMAGE_FILE_DEFAULT, SETUP_SCRIPT_FILE_DEFAULT)})
+	cmds = append(cmds, []string{"apk", "add", "alpine-make-vm-image"}, []string{"sh", "-c", fmt.Sprintf("alpine-make-vm-image --image-format qcow2 --repositories-file %v --packages \"$(cat %v)\" --script-chroot %v %v", REPOSITORY_LIST_FILE_DEFAULT, PACKAGE_LIST_FILE_DEFAULT, OUTPUT_IMAGE_FILE_DEFAULT, SETUP_SCRIPT_FILE_DEFAULT)})
 	for _, cmd := range cmds {
 		exec, err := cli.ContainerExecCreate(ctx, resp.ID, types.ExecConfig{Cmd: cmd, WorkingDir: WORKDIR})
 		if err != nil {
@@ -100,9 +105,22 @@ func main() {
 		}
 	}
 
-	// if err := cli.ContainerRemove(ctx, resp.ID, types.ContainerRemoveOptions{Force: true}); err != nil {
-	// log.Fatal(err)
-	// }
+	localFile, err := os.Create(*outputImageFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	log.Println(*setupScriptFile, *packageListFile, *repositoryListFile, *outputImageFile, resp.ID)
+	tarStream, _, err := cli.CopyFromContainer(ctx, resp.ID, path.Join(WORKDIR, OUTPUT_IMAGE_FILE_DEFAULT))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	remoteFile := tar.NewReader(tarStream)
+	if _, err := remoteFile.Next(); err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := io.Copy(localFile, remoteFile); err != nil {
+		log.Fatal(err)
+	}
 }
