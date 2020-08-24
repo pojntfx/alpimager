@@ -1,0 +1,4 @@
+openssh
+sudo
+curl
+e2fsprogs-extra
