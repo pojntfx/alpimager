@@ -38,6 +38,18 @@ func main() {
 
 	ctx := context.Background()
 
+	filePaths := [][2]string{{*setupScriptFile, SETUP_SCRIPT_FILE_DEFAULT}, {*packageListFile, PACKAGE_LIST_FILE_DEFAULT}, {*repositoryListFile, REPOSITORY_LIST_FILE_DEFAULT}}
+	for _, filePath := range filePaths {
+		info, err := os.Stat(filePath[0])
+		if err != nil {
+			log.Fatal("could not check if file exists", filePath[0], err)
+		}
+
+		if info == nil {
+			log.Fatal("file doesn't exist", filePath[0], err)
+		}
+	}
+
 	log.Println("connecting to Docker daemon")
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -67,7 +79,6 @@ func main() {
 	}()
 
 	log.Println("copying files to Alpine Linux container")
-	filePaths := [][2]string{{*setupScriptFile, SETUP_SCRIPT_FILE_DEFAULT}, {*packageListFile, PACKAGE_LIST_FILE_DEFAULT}, {*repositoryListFile, REPOSITORY_LIST_FILE_DEFAULT}}
 	cmds := [][]string{}
 	for _, filePath := range filePaths {
 		archive, err := archive.Tar(filePath[0], archive.Gzip)
