@@ -14,6 +14,8 @@ Linux, macOS and Windows binaries are available on [GitHub Releases](https://git
 
 ## Usage
 
+See [testdata](testdata) for example files.
+
 ```bash
 % alpimager -help
 Usage of alpimager:
