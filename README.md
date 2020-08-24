@@ -10,7 +10,7 @@ This projects builds custom Alpine Linux images with the [alpine-make-vm-image u
 
 ## Installation
 
-Linux and macOS binaries are available on [GitHub Releases](https://github.com/pojntfx/alpimager/releases).
+Linux, macOS and Windows binaries are available on [GitHub Releases](https://github.com/pojntfx/alpimager/releases).
 
 ## Usage
 
