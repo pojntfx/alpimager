@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -95,7 +95,7 @@ func main() {
 			log.Fatal("could not copy tar archive for file to copy into Alpine Linux container", filePath, err)
 		}
 
-		cmds = append(cmds, []string{"mv", WORKDIR + "/" + path.Base(filePath[0]), WORKDIR + "/" + filePath[1]})
+		cmds = append(cmds, []string{"mv", WORKDIR + "/" + filepath.Base(filePath[0]), WORKDIR + "/" + filePath[1]})
 	}
 
 	log.Println("building image in Alpine Linux container")
