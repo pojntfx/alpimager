@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -23,7 +24,6 @@ const (
 	OUTPUT_IMAGE_FILE_DEFAULT    = "alpine.qcow2"
 
 	DOCKER_IMAGE_URL = "docker.io/library/alpine:edge"
-	DOCKER_IMAGE     = "alpine:edge"
 
 	WORKDIR = "/tmp"
 )
@@ -57,12 +57,17 @@ func main() {
 	}
 
 	log.Println("pulling Alpine Linux image")
-	if _, err := cli.ImagePull(ctx, DOCKER_IMAGE_URL, types.ImagePullOptions{}); err != nil {
+	out, err := cli.ImagePull(ctx, DOCKER_IMAGE_URL, types.ImagePullOptions{})
+	if err != nil {
 		log.Fatal("could not pull Alpine Linux image", err)
+	}
+	defer out.Close()
+	if _, err := ioutil.ReadAll(out); err != nil {
+		log.Fatal("could not write pulled Alpine Linux image", err)
 	}
 
 	log.Println("creating Alpine Linux container")
-	resp, err := cli.ContainerCreate(ctx, &container.Config{Image: DOCKER_IMAGE, Cmd: []string{"tail", "-f", "/dev/null"}}, &container.HostConfig{Privileged: true, DNS: []string{"8.8.8.8"}}, nil, "")
+	resp, err := cli.ContainerCreate(ctx, &container.Config{Image: DOCKER_IMAGE_URL, Cmd: []string{"tail", "-f", "/dev/null"}}, &container.HostConfig{Privileged: true, DNS: []string{"8.8.8.8"}}, nil, "")
 	if err != nil {
 		log.Fatal("could not create Alpine Linux container", err)
 	}
