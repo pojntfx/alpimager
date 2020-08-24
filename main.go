@@ -50,7 +50,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	resp, err := cli.ContainerCreate(ctx, &container.Config{Image: DOCKER_IMAGE, Cmd: []string{"tail", "-f", "/dev/null"}}, &container.HostConfig{Privileged: true}, nil, "")
+	resp, err := cli.ContainerCreate(ctx, &container.Config{Image: DOCKER_IMAGE, Cmd: []string{"tail", "-f", "/dev/null"}}, &container.HostConfig{Privileged: true, DNS: []string{"8.8.8.8"}}, nil, "")
 	if err != nil {
 		log.Fatal(err)
 	}
