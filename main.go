@@ -79,11 +79,11 @@ func main() {
 			log.Fatal("could not copy tar archive for file to copy into Alpine Linux container", filePath, err)
 		}
 
-		cmds = append(cmds, []string{"mv", path.Join(WORKDIR, path.Base(filePath[0])), path.Join(WORKDIR, filePath[1])})
+		cmds = append(cmds, []string{"mv", WORKDIR + "/" + path.Base(filePath[0]), WORKDIR + "/" + filePath[1]})
 	}
 
 	log.Println("building image in Alpine Linux container")
-	cmds = append(cmds, []string{"chmod", "+x", path.Join(WORKDIR, SETUP_SCRIPT_FILE_DEFAULT)}, []string{"apk", "add", "alpine-make-vm-image"}, []string{"sh", "-c", fmt.Sprintf("alpine-make-vm-image --image-format qcow2 --repositories-file %v --packages \"$(cat %v)\" --script-chroot %v %v", REPOSITORY_LIST_FILE_DEFAULT, PACKAGE_LIST_FILE_DEFAULT, OUTPUT_IMAGE_FILE_DEFAULT, SETUP_SCRIPT_FILE_DEFAULT)})
+	cmds = append(cmds, []string{"chmod", "+x", WORKDIR + "/" + SETUP_SCRIPT_FILE_DEFAULT}, []string{"apk", "add", "alpine-make-vm-image"}, []string{"sh", "-c", fmt.Sprintf("alpine-make-vm-image --image-format qcow2 --repositories-file %v --packages \"$(cat %v)\" --script-chroot %v %v", REPOSITORY_LIST_FILE_DEFAULT, PACKAGE_LIST_FILE_DEFAULT, OUTPUT_IMAGE_FILE_DEFAULT, SETUP_SCRIPT_FILE_DEFAULT)})
 	for _, cmd := range cmds {
 		exec, err := cli.ContainerExecCreate(ctx, resp.ID, types.ExecConfig{Cmd: cmd, WorkingDir: WORKDIR})
 		if err != nil {
@@ -115,7 +115,7 @@ func main() {
 		log.Fatal("could not create output file", *outputImageFile, err)
 	}
 
-	tarStream, _, err := cli.CopyFromContainer(ctx, resp.ID, path.Join(WORKDIR, OUTPUT_IMAGE_FILE_DEFAULT))
+	tarStream, _, err := cli.CopyFromContainer(ctx, resp.ID, WORKDIR+"/"+OUTPUT_IMAGE_FILE_DEFAULT)
 	if err != nil {
 		log.Fatal("could not request tar stream from Docker daemon", err)
 	}
