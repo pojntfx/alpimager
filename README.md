@@ -4,6 +4,8 @@ Build custom Alpine Linux images with Docker.
 
 ![Go CI](https://github.com/pojntfx/alpimager/workflows/Go%20CI/badge.svg)
 
+[![introduction video](https://img.youtube.com/vi/pxaqts3eHMM/maxresdefault.jpg)](https://youtu.be/pxaqts3eHMM)
+
 ## Overview
 
 This projects builds custom Alpine Linux images with the [alpine-make-vm-image utility](https://github.com/alpinelinux/alpine-make-vm-image), but it uses Docker and a simplified interface so that it can run easily on systems other than Alpine Linux that support Docker, such as for example macOS.
