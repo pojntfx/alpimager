@@ -21,6 +21,8 @@ See [testdata](testdata) for example files.
 ```bash
 % alpimager -help
 Usage of alpimager:
+  -debug
+        Enable debugging output
   -output string
         Output image file (default "alpine.qcow2")
   -packages string
