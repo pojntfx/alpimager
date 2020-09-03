@@ -101,7 +101,7 @@ func main() {
 	}
 
 	log.Println("building image in Alpine Linux container")
-	cmds = append(cmds, []string{"chmod", "+x", path.Join(WORKDIR, SETUP_SCRIPT_FILE_DEFAULT)}, []string{"apk", "add", "alpine-make-vm-image"}, []string{"sh", "-c", fmt.Sprintf("alpine-make-vm-image --image-format qcow2 --repositories-file %v --packages \"$(cat %v)\" --script-chroot %v --kernel-flavor lts %v", REPOSITORY_LIST_FILE_DEFAULT, PACKAGE_LIST_FILE_DEFAULT, OUTPUT_IMAGE_FILE_DEFAULT, SETUP_SCRIPT_FILE_DEFAULT)})
+	cmds = append(cmds, []string{"chmod", "+x", path.Join(WORKDIR, SETUP_SCRIPT_FILE_DEFAULT)}, []string{"apk", "add", "alpine-make-vm-image"}, []string{"sh", "-c", fmt.Sprintf("alpine-make-vm-image --image-format qcow2 --repositories-file %v --packages \"$(cat %v)\" --script-chroot %v %v", REPOSITORY_LIST_FILE_DEFAULT, PACKAGE_LIST_FILE_DEFAULT, OUTPUT_IMAGE_FILE_DEFAULT, SETUP_SCRIPT_FILE_DEFAULT)})
 	for _, cmd := range cmds {
 		exec, err := cli.ContainerExecCreate(ctx, resp.ID, types.ExecConfig{Cmd: cmd, WorkingDir: WORKDIR, AttachStdout: true, AttachStderr: true})
 		if err != nil {
