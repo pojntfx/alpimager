@@ -21,4 +21,4 @@ rc-update add sshd default
 rc-update add net.eth0 default
 rc-update add net.lo boot
 
-echo 'AllowTcpForwarding yes' >>/etc/ssh/sshd_config
+sed -i 's/AllowTcpForwarding no/AllowTcpForwarding yes/g' /etc/ssh/sshd_config

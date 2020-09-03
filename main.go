@@ -34,6 +34,7 @@ func main() {
 	packageListFile := flag.String("packages", PACKAGE_LIST_FILE_DEFAULT, "Package list file")
 	repositoryListFile := flag.String("repositories", REPOSITORY_LIST_FILE_DEFAULT, "Repository list file")
 	outputImageFile := flag.String("output", OUTPUT_IMAGE_FILE_DEFAULT, "Output image file")
+	debug := flag.Bool("debug", false, "Enable debugging output")
 
 	flag.Parse()
 
@@ -100,15 +101,20 @@ func main() {
 	}
 
 	log.Println("building image in Alpine Linux container")
-	cmds = append(cmds, []string{"chmod", "+x", path.Join(WORKDIR, SETUP_SCRIPT_FILE_DEFAULT)}, []string{"apk", "add", "alpine-make-vm-image"}, []string{"sh", "-c", fmt.Sprintf("alpine-make-vm-image --image-format qcow2 --repositories-file %v --packages \"$(cat %v)\" --script-chroot %v %v", REPOSITORY_LIST_FILE_DEFAULT, PACKAGE_LIST_FILE_DEFAULT, OUTPUT_IMAGE_FILE_DEFAULT, SETUP_SCRIPT_FILE_DEFAULT)})
+	cmds = append(cmds, []string{"chmod", "+x", path.Join(WORKDIR, SETUP_SCRIPT_FILE_DEFAULT)}, []string{"apk", "add", "alpine-make-vm-image"}, []string{"sh", "-c", fmt.Sprintf("alpine-make-vm-image --image-format qcow2 --repositories-file %v --packages \"$(cat %v)\" --script-chroot %v --kernel-flavor lts %v", REPOSITORY_LIST_FILE_DEFAULT, PACKAGE_LIST_FILE_DEFAULT, OUTPUT_IMAGE_FILE_DEFAULT, SETUP_SCRIPT_FILE_DEFAULT)})
 	for _, cmd := range cmds {
-		exec, err := cli.ContainerExecCreate(ctx, resp.ID, types.ExecConfig{Cmd: cmd, WorkingDir: WORKDIR})
+		exec, err := cli.ContainerExecCreate(ctx, resp.ID, types.ExecConfig{Cmd: cmd, WorkingDir: WORKDIR, AttachStdout: true, AttachStderr: true})
 		if err != nil {
 			log.Fatal("could not create exec", exec.ID, err)
 		}
 
-		if err := cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{}); err != nil {
-			log.Fatal("could not start exec", exec.ID, err)
+		attach, err := cli.ContainerExecAttach(ctx, exec.ID, types.ExecStartCheck{})
+		if err != nil {
+			log.Fatal("could not attach to exec", exec.ID, err)
+		}
+		defer attach.Close()
+		if *debug {
+			go io.Copy(os.Stdout, attach.Reader)
 		}
 
 		running := true
