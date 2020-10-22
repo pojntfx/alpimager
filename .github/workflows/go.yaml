@@ -11,7 +11,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.14.6
+          go-version: 1.15.3
       - name: Build with Go
         run: go build -o staging/alpimager main.go
       - uses: actions/upload-artifact@v1
@@ -34,7 +34,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.14.6
+          go-version: 1.15.3
       - name: Build with Go
         run: go build -o staging/alpimager main.go
       - uses: actions/upload-artifact@v1
@@ -48,3 +48,31 @@ jobs:
           automatic_release_tag: unstable-macos
           files: |
             staging/*
+
+  test-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.3
+      - name: Build with Go
+        run: go build -o /usr/local/bin/alpimager main.go
+      - name: Test
+        run: cd testdata && alpimager -debug
+
+  test-macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.3
+      - name: Build with Go
+        run: go build -o /usr/local/bin/alpimager main.go
+      - name: Test
+        run: cd testdata && alpimager -debug
