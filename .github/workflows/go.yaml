@@ -59,7 +59,7 @@ jobs:
         with:
           go-version: 1.15.3
       - name: Set up nbd kernel module
-        run: modprobe nbd
+        run: sudo modprobe nbd
       - name: Build with Go
         run: go build -o staging/alpimager main.go
       - name: Test
