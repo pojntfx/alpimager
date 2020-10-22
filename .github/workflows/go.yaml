@@ -61,7 +61,7 @@ jobs:
       - name: Build with Go
         run: go build -o staging/alpimager main.go
       - name: Test
-        run: cd testdata && ../staging/alpimager/alpimager -debug
+        run: cd testdata && ../staging/alpimager -debug
 
   test-macos:
     runs-on: macos-latest
@@ -77,4 +77,4 @@ jobs:
       - name: Build with Go
         run: go build -o staging/alpimager main.go
       - name: Test
-        run: cd testdata && ../staging/alpimager/alpimager -debug
+        run: cd testdata && ../staging/alpimager -debug
