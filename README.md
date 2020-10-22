@@ -12,7 +12,7 @@ This projects builds custom Alpine Linux images with the [alpine-make-vm-image u
 
 ## Installation
 
-Linux, macOS and Windows binaries are available on [GitHub Releases](https://github.com/pojntfx/alpimager/releases).
+Linux and macOS binaries are available on [GitHub Releases](https://github.com/pojntfx/alpimager/releases). Windows is no longer supported since WSL2, the new Docker backend in Windows, [uses a Kernel without `nbd` support](https://github.com/microsoft/WSL/issues/5968); if just want a quick Alpine VM, I recommend using [Alpine WSL](https://www.microsoft.com/en-us/p/alpine-wsl/9p804crf0395) until Microsoft resolve the issue.
 
 ## Usage
 
@@ -32,11 +32,6 @@ Usage of alpimager:
   -script string
         Setup script file (default "setup.sh")
 ```
-
-If you are for some reason still using Windows, please:
-
-- Use absolute file paths in the parameters (i.e. `C:\Users\pojntfx\Downloads\packages.txt`)
-- Make sure that the files (i.e. `packages.txt`) use proper `LF` line endings
 
 ## License
 
