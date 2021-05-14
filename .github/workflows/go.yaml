@@ -1,6 +1,8 @@
 name: Go CI
 
-on: [push]
+on:
+  push:
+  pull_request:
 
 jobs:
   build-linux:
@@ -11,72 +13,21 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15.3
+          go-version: 1.16
       - name: Build with Go
-        run: go build -o staging/alpimager main.go
-      - uses: actions/upload-artifact@v1
-        with:
-          name: Linux Binary
-          path: staging
-      - uses: "marvinpinto/action-automatic-releases@latest"
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o ../staging/alpimager.linux-x86_64 main.go
+          GOOS=linux GOARCH=arm64 go build -o ../staging/alpimager.linux-aarch64 main.go
+          GOOS=linux GOARCH=arm go build -o ../staging/alpimager.linux-armv7l main.go
+          GOOS=windows GOARCH=amd64 go build -o ../staging/alpimager.windows-x86_64.exe main.go
+          GOOS=darwin GOARCH=amd64 go build -o ../staging/alpimager.darwin-x86_64 main.go
+          GOOS=darwin GOARCH=arm64 go build -o ../staging/alpimager.darwin-arm64 main.go
+      - name: Publish binaries to GitHub releases
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: true
-          automatic_release_tag: unstable-linux
+          automatic_release_tag: "latest"
+          prerelease: false
           files: |
             staging/*
-
-  build-macos:
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.15.3
-      - name: Build with Go
-        run: go build -o staging/alpimager main.go
-      - uses: actions/upload-artifact@v1
-        with:
-          name: macOS Binary
-          path: staging
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: true
-          automatic_release_tag: unstable-macos
-          files: |
-            staging/*
-
-  test-linux:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.15.3
-      - name: Set up nbd kernel module
-        run: sudo modprobe nbd
-      - name: Build with Go
-        run: go build -o staging/alpimager main.go
-      - name: Test
-        run: cd testdata && ../staging/alpimager -debug
-
-  test-macos:
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.15.3
-      - name: Set up Docker
-        uses: docker-practice/actions-setup-docker@master
-      - name: Build with Go
-        run: go build -o staging/alpimager main.go
-      - name: Test
-        run: cd testdata && ../staging/alpimager -debug
