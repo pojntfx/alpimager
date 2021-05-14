@@ -16,12 +16,12 @@ jobs:
           go-version: 1.16
       - name: Build with Go
         run: |
-          GOOS=linux GOARCH=amd64 go build -o ../staging/alpimager.linux-x86_64 main.go
-          GOOS=linux GOARCH=arm64 go build -o ../staging/alpimager.linux-aarch64 main.go
-          GOOS=linux GOARCH=arm go build -o ../staging/alpimager.linux-armv7l main.go
-          GOOS=windows GOARCH=amd64 go build -o ../staging/alpimager.windows-x86_64.exe main.go
-          GOOS=darwin GOARCH=amd64 go build -o ../staging/alpimager.darwin-x86_64 main.go
-          GOOS=darwin GOARCH=arm64 go build -o ../staging/alpimager.darwin-arm64 main.go
+          GOOS=linux GOARCH=amd64 go build -o staging/alpimager.linux-x86_64 main.go
+          GOOS=linux GOARCH=arm64 go build -o staging/alpimager.linux-aarch64 main.go
+          GOOS=linux GOARCH=arm go build -o staging/alpimager.linux-armv7l main.go
+          GOOS=windows GOARCH=amd64 go build -o staging/alpimager.windows-x86_64.exe main.go
+          GOOS=darwin GOARCH=amd64 go build -o staging/alpimager.darwin-x86_64 main.go
+          GOOS=darwin GOARCH=arm64 go build -o staging/alpimager.darwin-arm64 main.go
       - name: Publish binaries to GitHub releases
         if: ${{ github.ref == 'refs/heads/master' }}
         uses: marvinpinto/action-automatic-releases@latest
